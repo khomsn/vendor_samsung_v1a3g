@@ -43,7 +43,8 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/app/mcRegistry/ffffffff00000000000000000000000f.tlbin:system/app/mcRegistry/ffffffff00000000000000000000000f.tlbin \
     $(VENDOR_DIR)/app/mcRegistry/ffffffffd00000000000000000000004.tlbin:system/app/mcRegistry/ffffffffd00000000000000000000004.tlbin \
     $(VENDOR_DIR)/app/mcRegistry/ffffffffd0000000000000000000000a.tlbin:system/app/mcRegistry/ffffffffd0000000000000000000000a.tlbin \
-    $(VENDOR_DIR)/app/mcRegistry/ffffffffd0000000000000000000000e.tlbin:system/app/mcRegistry/ffffffffd0000000000000000000000e.tlbin
+    $(VENDOR_DIR)/app/mcRegistry/ffffffffd0000000000000000000000e.tlbin:system/app/mcRegistry/ffffffffd0000000000000000000000e.tlbin \
+    $(VENDOR_DIR)/app/mcRegistry/fffffffff0000000000000000000001e.tlbin:system/app/mcRegistry/fffffffff0000000000000000000001e.tlbin
 
 # app
 PRODUCT_COPY_FILES += \
@@ -55,6 +56,12 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/bin/cs:system/bin/cs \
     $(VENDOR_DIR)/bin/gps.cer:system/bin/gps.cer \
     $(VENDOR_DIR)/bin/gpsd:system/bin/gpsd
+
+# etc/permissions
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/etc/permissions/com.samsung.device.xml:system/etc/permissions/com.samsung.device.xml \
+    $(VENDOR_DIR)/etc/permissions/com.sec.feature.spen_usp_level3.xml:system/etc/permissions/com.sec.feature.spen_usp_level3.xml \
+    $(VENDOR_DIR)/etc/permissions/com.sec.feature.wfd_support.xml:system/etc/permissions/com.sec.feature.wfd_support.xml
 
 # WiFi - Firmware
 PRODUCT_COPY_FILES += \
@@ -96,6 +103,10 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/etc/plmn_se13.bin:system/etc/plmn_se13.bin \
     $(VENDOR_DIR)/etc/srm.bin:system/etc/srm.bin
 
+# framework
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/framework/com.samsung.device.jar:system/framework/com.samsung.device.jar
+
 # lib/hw
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/lib/hw/gps.universal5420.so:system/lib/hw/gps.universal5420.so \
@@ -111,7 +122,6 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/lib/libak8963c.so:system/lib/libak8963c.so \
     $(VENDOR_DIR)/lib/libexynoscamera.so:system/lib/libexynoscamera.so \
     $(VENDOR_DIR)/lib/libsec-ril.so:system/lib/libsec-ril.so \
-    $(VENDOR_DIR)/lib/libsecnativefeature.so:system/lib/libsecnativefeature.so \
     $(VENDOR_DIR)/lib/libvdis.so:system/lib/libvdis.so \
     $(VENDOR_DIR)/lib/libwrappergps.so:system/lib/libwrappergps.so
 
@@ -133,6 +143,7 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/vendor/firmware/bcm4350_V0301.0670.hcd:system/vendor/firmware/bcm4350_V0301.0670.hcd
 
 # vendor/lib/egl
+# OpenGL - T6XX R7P0 GPU Driver
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/vendor/lib/egl/libGLES_mali.so:system/vendor/lib/egl/libGLES_mali.so
 
@@ -140,16 +151,155 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so
 
+# vendor/lib
 # RS - T6XX R7P0 GPU Driver
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/vendor/lib/libmalicore.bc:system/vendor/lib/libmalicore.bc
 
+# Noise Suppression Controller
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/vendor/lib/liblvverx_3.25.00.so:system/vendor/lib/liblvverx.so \
+    $(VENDOR_DIR)/vendor/lib/liblvvetx_3.25.00.so:system/vendor/lib/liblvvetx.so
+
+# Noise Suppression
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_ANALOG_DOCK.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_ANALOG_DOCK.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/BargeInDriving/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIPFMC/Rx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIPFMC/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/LVVEFS_Tx_Configuration.txt:system/vendor/etc/nxp/LVVEFS_Tx_Configuration.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIPSec/Rx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIPSec/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_NARROWBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/mVoIP/Rx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/mVoIP/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/LVVEFS_Rx_Configuration.txt:system/vendor/etc/nxp/LVVEFS_Rx_Configuration.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_SPEAKER.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_SPEAKER.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_EARPIECE.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_EARPIECE.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_NARROWBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_NARROWBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/VideoTelephony/Rx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/VideoTelephony/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_ANALOG_DOCK.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_ANALOG_DOCK.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_BLUETOOTH_SCO_HEADSET.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_SPEAKER.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_SPEAKER.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_EARPIECE.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_EARPIECE.txt \
+    $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt
+
+# PenSDK-5.1.0 libsec
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenEngine.so:system/lib/libSPenEngine.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenChineseBrushBig.so:system/lib/libSPenChineseBrushBig.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBrush.so:system/lib/libSPenBrush.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSDK.so:system/lib/libSDK.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenCrayon.so:system/lib/libSPenCrayon.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognizerSolver.so:system/lib/libSPenRecognizerSolver.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenGraphics.so:system/lib/libSPenGraphics.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenComposer.so:system/lib/libSPenComposer.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenWaterColorBrush.so:system/lib/libSPenWaterColorBrush.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenObliquePen.so:system/lib/libSPenObliquePen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenEraser.so:system/lib/libSPenEraser.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libgnustl_shared.so:system/lib/libgnustl_shared.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenModel.so:system/lib/libSPenModel.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenSDoc.so:system/lib/libSPenSDoc.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionShape.so:system/lib/libSPenRecognitionShape.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenMontblancFountainPen.so:system/lib/libSPenMontblancFountainPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenFountainPen.so:system/lib/libSPenFountainPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenMarker.so:system/lib/libSPenMarker.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenSkia.so:system/lib/libSPenSkia.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBeautify.so:system/lib/libSPenBeautify.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionSignature.so:system/lib/libSPenRecognitionSignature.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognizerContext.so:system/lib/libSPenRecognizerContext.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenMarker2.so:system/lib/libSPenMarker2.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenPencil3.so:system/lib/libSPenPencil3.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenGL.so:system/lib/libSPenGL.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionText.so:system/lib/libSPenRecognitionText.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBrushPen.so:system/lib/libSPenBrushPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenMontblancCalligraphyPen.so:system/lib/libSPenMontblancCalligraphyPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionEquation.so:system/lib/libSPenRecognitionEquation.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognizerShape.so:system/lib/libSPenRecognizerShape.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionNRRSignature.so:system/lib/libSPenRecognitionNRRSignature.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenChineseBrush.so:system/lib/libSPenChineseBrush.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognizer.so:system/lib/libSPenRecognizer.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenCrayon2.so:system/lib/libSPenCrayon2.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenControl.so:system/lib/libSPenControl.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenMagicPen.so:system/lib/libSPenMagicPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenInkPen.so:system/lib/libSPenInkPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenInit.so:system/lib/libSPenInit.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenPencil.so:system/lib/libSPenPencil.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenOilBrush2.so:system/lib/libSPenOilBrush2.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenOilBrush3.so:system/lib/libSPenOilBrush3.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognitionWorker.so:system/lib/libSPenRecognitionWorker.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenAirBrushPen.so:system/lib/libSPenAirBrushPen.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenRecognizerDocument.so:system/lib/libSPenRecognizerDocument.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenPencil2.so:system/lib/libSPenPencil2.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenPluginFW.so:system/lib/libSPenPluginFW.so \
+    $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBase.so:system/lib/libSPenBase.so
+
+# CameraSDK_v1.3.0
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_util.so:system/lib/libscamera_util.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libsrc_haze_removal_capture.so:system/lib/libsrc_haze_removal_capture.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_core.so:system/lib/libscamera_core.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_jni.so:system/lib/libscamera_jni.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libdmcFaceEngine.so:system/lib/libdmcFaceEngine.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libsrc_haze_removal_preview.so:system/lib/libsrc_haze_removal_preview.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_dof.so:system/lib/libscamera_dof.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_ipx.so:system/lib/libscamera_ipx.so \
+    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_panorama.so:system/lib/libscamera_panorama.so
+
 # SSWAP+CBD
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/sbin/sswap:root/sbin/sswap
-
-# Noise Suppression Controller
-PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/vendor/lib/liblvverx_3.20.03.so:system/vendor/lib/liblvverx_3.20.03.so \
-    $(VENDOR_DIR)/vendor/lib/liblvvetx_3.20.03.so:system/vendor/lib/liblvvetx_3.20.03.so
-    
