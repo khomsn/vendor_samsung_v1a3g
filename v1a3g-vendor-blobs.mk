@@ -61,7 +61,25 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/etc/permissions/com.samsung.device.xml:system/etc/permissions/com.samsung.device.xml \
     $(VENDOR_DIR)/etc/permissions/com.sec.feature.spen_usp_level3.xml:system/etc/permissions/com.sec.feature.spen_usp_level3.xml \
-    $(VENDOR_DIR)/etc/permissions/com.sec.feature.wfd_support.xml:system/etc/permissions/com.sec.feature.wfd_support.xml
+    $(VENDOR_DIR)/etc/permissions/com.sec.feature.wfd_support.xml:system/etc/permissions/com.sec.feature.wfd_support.xml \
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.ipx.xml:system/etc/permissions/com.samsung.android.sdk.camera.ipx.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.sec.feature.spen_usp_level10.xml:system/etc/permissions/com.sec.feature.spen_usp_level10.xml \
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.api.version.xml:system/etc/permissions/com.samsung.android.api.version.xml \
+    $(VENDOR_DIR)/etc/permissions/seccamera.xml:system/etc/permissions/seccamera.xml	\
+    $(VENDOR_DIR)/etc/permissions/scamera_sdk_util.xml:system/etc/permissions/scamera_sdk_util.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.hdr.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.hdr.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.panorama.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.panorama.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.gif.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.gif.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.effect.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.effect.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.dof.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.dof.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.haze.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.haze.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.samsung.android.sdk.camera.processor.lls.xml:system/etc/permissions/com.samsung.android.sdk.camera.processor.lls.xml	\
+    $(VENDOR_DIR)/etc/permissions/secimaging.xml:system/etc/permissions/secimaging.xml	\
+    $(VENDOR_DIR)/etc/permissions/com.sec.android.secimaging.xml:system/etc/permissions/com.sec.android.secimaging.xml	\
+    $(VENDOR_DIR)/etc/permissions/sec_feature.xml:system/etc/permissions/sec_feature.xml	\
+    $(VENDOR_DIR)/etc/permissions/sechardware.xml:system/etc/permissions/sechardware.xml	\
+
 
 # WiFi - Firmware
 PRODUCT_COPY_FILES += \
@@ -105,7 +123,13 @@ PRODUCT_COPY_FILES += \
 
 # framework
 PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/framework/com.samsung.device.jar:system/framework/com.samsung.device.jar
+    $(VENDOR_DIR)/framework/com.samsung.device.jar:system/framework/com.samsung.device.jar \
+    $(VENDOR_DIR)/framework/scamera_sdk_util.jar:system/framework/scamera_sdk_util.jar	\
+    $(VENDOR_DIR)/framework/secimaging.jar:system/framework/secimaging.jar	\
+    $(VENDOR_DIR)/framework/semcamera.jar:system/framework/semcamera.jar	\
+    $(VENDOR_DIR)/framework/seccamera.jar:system/framework/seccamera.jar	\
+    $(VENDOR_DIR)/framework/sec_feature.jar:system/framework/sec_feature.jar	\
+    $(VENDOR_DIR)/framework/sechardware.jar:system/framework/sechardware.jar	\
 
 # lib/hw
 PRODUCT_COPY_FILES += \
@@ -120,10 +144,12 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/lib/libGLES_trace.so:system/lib/libGLES_trace.so \
     $(VENDOR_DIR)/lib/libak8963c.so:system/lib/libak8963c.so \
-    $(VENDOR_DIR)/lib/libexynoscamera.so:system/lib/libexynoscamera.so \
     $(VENDOR_DIR)/lib/libsec-ril.so:system/lib/libsec-ril.so \
     $(VENDOR_DIR)/lib/libvdis.so:system/lib/libvdis.so \
     $(VENDOR_DIR)/lib/libwrappergps.so:system/lib/libwrappergps.so
+# lib
+PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/lib/libexynoscamera.so:system/lib/libexynoscamera.so \
 
 # vendor/firmware
 # Samsung Exynos5 SoC series FIMC-IS driver firmware
@@ -239,7 +265,7 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt:system/vendor/etc/nxp/BargeIn/Tx_ControlParams_WIDEBAND_WIRED_HEADPHONE.txt
 
 # PenSDK-5.1.0 libsec
-PRODUCT_COPY_FILES += \
+#PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenEngine.so:system/lib/libSPenEngine.so \
     $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenChineseBrushBig.so:system/lib/libSPenChineseBrushBig.so \
     $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBrush.so:system/lib/libSPenBrush.so \
@@ -288,18 +314,22 @@ PRODUCT_COPY_FILES += \
     $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenPluginFW.so:system/lib/libSPenPluginFW.so \
     $(VENDOR_DIR)/lib/PenSDK-5.1.0/libSPenBase.so:system/lib/libSPenBase.so
 
-# CameraSDK_v1.3.0
-PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_util.so:system/lib/libscamera_util.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libsrc_haze_removal_capture.so:system/lib/libsrc_haze_removal_capture.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_core.so:system/lib/libscamera_core.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_jni.so:system/lib/libscamera_jni.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libdmcFaceEngine.so:system/lib/libdmcFaceEngine.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libsrc_haze_removal_preview.so:system/lib/libsrc_haze_removal_preview.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_dof.so:system/lib/libscamera_dof.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_ipx.so:system/lib/libscamera_ipx.so \
-    $(VENDOR_DIR)/lib/CameraSDK_v1.3.0/libscamera_panorama.so:system/lib/libscamera_panorama.so
+# CameraSDK_v1.3.2
+# PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_jpeginterface_o.so:system/lib/libscamera_jpeginterface_o.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_util.so:system/lib/libscamera_util.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libsrc_haze_removal_capture.so:system/lib/libsrc_haze_removal_capture.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_jpeginterface_p.so:system/lib/libscamera_jpeginterface_p.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_core.so:system/lib/libscamera_core.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libcamera_effect_processor_jni.so:system/lib/libcamera_effect_processor_jni.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_jni.so:system/lib/libscamera_jni.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libjpeg_scamera.so:system/lib/libjpeg_scamera.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libsrc_haze_removal_preview.so:system/lib/libsrc_haze_removal_preview.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_dof.so:system/lib/libscamera_dof.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libscamera_ipx.so:system/lib/libscamera_ipx.so \
+    $(VENDOR_DIR)/lib/CameraSDK_V1.3.2/libexif_scamera.so:system/lib/libexif_scamera.so \
 
 # SSWAP+CBD
 PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/sbin/sswap:root/sbin/sswap
+    $(VENDOR_DIR)/sbin/sswap:root/sbin/sswap \
+    $(VENDOR_DIR)/sbin/parted:root/sbin/parted
