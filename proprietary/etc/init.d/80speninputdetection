@@ -1,0 +1,209 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+
+CONFIG="/sdcard/SPen/.spendetection.conf"
+
+INFORM="/sdcard/SPen/S-PEN-Detection-ReadMe-First.txt"
+# ************************ Check config  ******************************************
+if [ ! -e $CONFIG ]; then
+    if [ ! -d /sdcard/SPen ]; then
+        mkdir -p /sdcard/SPen
+        chmod 0771 /sdcard/SPen
+        chown root:sdcard_rw /sdcard/SPen
+        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" > $CONFIG
+    else
+        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" > $CONFIG
+    fi
+fi
+
+if [ ! -e $INFORM ]; then
+    if [ ! -d /sdcard/SPen ]; then
+        mkdir -p /sdcard/SPen
+        chmod 0771 /sdcard/SPen
+        chown root:sdcard_rw /sdcard/SPen
+        echo "#************************************************************************************************#" > $INFORM
+        echo "# ************************ config file input ****************************************************#" >> $INFORM
+        echo "default config file location is /sdcard/SPen/.spendetection.conf" >> $INFORM
+        echo "format patern is as below copy line below and paste in \"/sdcard/SPen/.spendetection.conf\" ">> $INFORM
+        echo "\n" >> $INFORM
+        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "  First_is_for_Spen_input : Second_is_for_Touch_input                                             " >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#*************************************************************************************************#" >> $INFORM
+    else
+       
+        echo "#************************************************************************************************#" > $INFORM
+        echo "# ************************ config file input ****************************************************#" >> $INFORM
+        echo "default config file location is /sdcard/SPen/.spendetection.conf" >> $INFORM
+        echo "format patern is as below copy line below and paste in \"/sdcard/SPen/.spendetection.conf\" ">> $INFORM
+        echo "\n" >> $INFORM
+        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "  First_is_for_Spen_input : Second_is_for_Touch_input                                             " >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#*************************************************************************************************#" >> $INFORM
+    fi
+fi
+
+if [ ! -d /sdcard/Pictures/Screenshots ]; then
+        mkdir -p /sdcard/Pictures/Screenshots
+        chmod 0771 /sdcard/Pictures/Screenshots
+        chown root:sdcard_rw /sdcard/Pictures/Screenshots
+fi
+#*******************************Initial Value*************************************#
+touchenable=1
+inputmode="TOUCHSCREEN"
+#*****************************Get Config Value************************************#
+if [ -e $CONFIG ]; then
+    while IFS=: read -r v1 v2
+    do
+        #************************** assign parameters ****************************#
+        SpenInputIME=$v1
+        TouchInputIME=$v2
+    done <"$CONFIG"    
+fi
+#************************ Disable TOUCHSCREEN_INPUT *****************************
+disabletouchinput() {
+    echo 0 > /sys/devices/platform/s3c2440-i2c.0/i2c-0/0-004a/input/input2/enabled
+}
+#************************* Enable TOUCHSCREEN_INPUT *****************************
+enabletouchinput() {
+    echo 1 > /sys/devices/platform/s3c2440-i2c.0/i2c-0/0-004a/input/input2/enabled
+}
+# **************** Detect S-Pen in used. *******************************************
+# ** "0005 0013 00000000" is inserted code, "0005 0013 00000001" is removed code ***
+# ** these two codes are not signal for S-Pen in used.                           ***
+#************************ Get PEN event code ************************************
+speninbox() {
+    if [ "$inputmode" == "TOUCHSCREEN" ]; then
+        speninboxcode=$( getevent -qc 1  /dev/input/event10 )
+    else
+        speninboxcode=$(timeout 1 getevent -qc 1  /dev/input/event10 )
+    fi
+    #--------- Not empty means S-Pen in used ------------#
+    if [ "$speninboxcode" != "" ]; then
+        if [ "$inputmode" == "TOUCHSCREEN" ]; then
+            /system/bin/ime set $SpenInputIME
+        fi
+        inputmode="S-PEN"
+    fi
+
+    if [ "$speninboxcode" == "0005 0013 00000000" ]; then
+        inputmode="TOUCHSCREEN"
+    elif [ "$speninboxcode" == "" ]; then
+        inputmode="TOUCHSCREEN"
+    fi
+
+    if [ "$inputmode" == "TOUCHSCREEN" ]; then
+        /system/bin/ime set $TouchInputIME
+
+        spendown=0
+        spenup=0
+        pentouchdown=0
+        pentouchup=0
+        stylusbtpd=0
+        stylusbtpu=0
+    fi
+}
+#************************ Get PEN event code ************************************
+spenevent() {
+        speneventcode=$( timeout 2 getevent -lc 500 /dev/input/event10 | grep -e "EV_KEY" )
+}
+# **********************************************************************************
+pendetection() {
+
+        test="EV_KEY       BTN_DIGI             DOWN"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            spendown=1
+        else
+            spendown=0
+        fi
+        
+        test="EV_KEY       BTN_DIGI             UP"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            spenup=1
+        
+        else
+            spenup=0
+        fi
+        
+        test="EV_KEY       BTN_TOUCH            DOWN"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            pentouchdown=1
+        else
+            pentouchdown=0
+        fi
+        
+        test="EV_KEY       BTN_TOUCH            UP"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            pentouchup=1
+        else
+            pentouchup=0
+        fi
+        
+        test="EV_KEY       BTN_STYLUS           DOWN"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            stylusbtpd=1
+        else
+            stylusbtpd=0
+        fi
+        
+        test="EV_KEY       BTN_STYLUS           UP"
+        if echo "$speneventcode" | grep -q "$test"
+        then
+            stylusbtpu=1
+        else
+            stylusbtpu=0
+        fi
+}
+
+# ************************* Main Part ********************************
+
+while :; do
+    speninbox
+    
+    if [ "$inputmode" == "S-PEN" ]; then
+        if [ "$touchenable" == "1" ]; then
+            disabletouchinput
+            touchenable=0
+        fi
+    elif [ "$inputmode" == "TOUCHSCREEN" ]; then
+        if [ "$touchenable" == "0" ]; then
+            enabletouchinput
+            touchenable=1
+        fi
+    fi
+    
+    if [ "$inputmode" == "S-PEN" ]; then
+        spenevent
+        pendetection
+        
+        screencapcode=$((spendown + pentouchdown + stylusbtpd + stylusbtpu))
+        if [  $screencapcode -ge 3   ]; then 
+            dt=$(date +"%Y-%m-%d_%H-%M-%S")
+            /system/bin/screencap -p "/sdcard/Pictures/Screenshots/Screenshot_$dt.png"
+        fi
+    fi
+
+done

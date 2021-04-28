@@ -1,0 +1,14 @@
+#!/system/bin/sh
+
+#This simple script will set swappiness on boot.
+#Make sure you change the value of swappiness below according to your needs.
+#This script is intended to run from init.d directory at boot.
+#It must be executed with root privilledges.
+#If this script does not work even if you have init.d support on your ROM, please try using an App that emulates init.d
+#Panos(Geekydoc), 2017
+
+SWAPPINESS=10
+
+sysctl -w vm.swappiness=$SWAPPINESS
+
+exit 0

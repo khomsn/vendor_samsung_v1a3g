@@ -19,7 +19,6 @@ PRODUCT_COPY_FILES += \
 
 VENDOR_DIR := vendor/samsung/v1a3g
 
-# SSWAP+CBD
+# Parted Patitioning program
 PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/root/sbin/sswap:root/sbin/sswap \
     $(VENDOR_DIR)/root/sbin/parted:root/sbin/parted
