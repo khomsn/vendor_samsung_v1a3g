@@ -16,6 +16,9 @@
 
 # Pick up overlay for features that depend on non-open-source files
 DEVICE_PACKAGE_OVERLAYS := vendor/samsung/v1a3g/overlay
+PRODUCT_PACKAGES += \
+    HwCompass \
+    UniversalDoze \
 
 $(call inherit-product, vendor/samsung/v1a3g/v1a3g-vendor-blobs.mk)
 #$(call inherit-product, vendor/samsung/p355/p355-blobs.mk)
