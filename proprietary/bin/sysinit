@@ -7,3 +7,8 @@ for i in /system/etc/init.d/*; do
         $i
     fi
 done
+
+/system/bin/swaponpreload
+/system/bin/swappiness_set
+/system/bin/speninputdetection
+/system/bin/userinit
