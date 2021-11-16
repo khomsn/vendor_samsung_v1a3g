@@ -1,0 +1,10 @@
+#!/system/bin/sh
+TEMPSELINUX="/dev/SELinux/temp"
+
+. $TEMPSELINUX
+
+if [ -e /system/xbin/su ]; then
+/system/xbin/su 0 rm -r /dev/SELinux
+elif  [ -e /sbin/su ]; then
+/sbin/su -Mc rm -r /dev/SELinux
+fi

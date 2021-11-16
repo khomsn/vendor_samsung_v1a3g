@@ -9,75 +9,28 @@
 # 
 # Scripting by Khomsn@gmail.com
 # *******************************************************************************
-
-CONFIG="/data/media/0/SPen/.spendetection.conf"
-
-INFORM="/data/media/0/SPen/S-PEN-Detection-ReadMe-First.txt"
-# ************************ Check config  ******************************************
-if [ ! -e $CONFIG ]; then
-    if [ ! -d /data/media/0/SPen ]; then
-        mkdir -p /data/media/0/SPen
-        chmod 0771 /data/media/0/SPen
-        chown root:sdcard_rw /data/media/0/SPen
-        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" > $CONFIG
-    else
-        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" > $CONFIG
-    fi
-fi
-
-if [ ! -e $INFORM ]; then
-    if [ ! -d /data/media/0/SPen ]; then
-        mkdir -p /data/media/0/SPen
-        chmod 0771 /data/media/0/SPen
-        chown root:sdcard_rw /data/media/0/SPen
-        echo "#************************************************************************************************#" > $INFORM
-        echo "# ************************ config file input ****************************************************#" >> $INFORM
-        echo "default config file location is /data/media/0/SPen/.spendetection.conf" >> $INFORM
-        echo "format patern is as below copy line below and paste in \"/data/media/0/SPen/.spendetection.conf\" ">> $INFORM
-        echo "\n" >> $INFORM
-        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "  First_is_for_Spen_input : Second_is_for_Touch_input                                             " >> $INFORM
-        echo "\n" >> $INFORM
-        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "#*************************************************************************************************#" >> $INFORM
-    else
-       
-        echo "#************************************************************************************************#" > $INFORM
-        echo "# ************************ config file input ****************************************************#" >> $INFORM
-        echo "default config file location is /data/media/0/SPen/.spendetection.conf" >> $INFORM
-        echo "format patern is as below copy line below and paste in \"/data/media/0/SPen/.spendetection.conf\" ">> $INFORM
-        echo "\n" >> $INFORM
-        echo "com.google.android.apps.handwriting.ime/.HandwritingIME:org.pocketworkstation.pckeyboard/.LatinIME" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "  First_is_for_Spen_input : Second_is_for_Touch_input                                             " >> $INFORM
-        echo "\n" >> $INFORM
-        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
-        echo "\n" >> $INFORM
-        echo "#*************************************************************************************************#" >> $INFORM
-    fi
-fi
-
-if [ ! -d /data/media/0/Pictures/Screenshots ]; then
-        mkdir -p /data/media/0/Pictures/Screenshots
-        chmod 0771 /data/media/0/Pictures/Screenshots
-        chown root:sdcard_rw /data/media/0/Pictures/Screenshots
-fi
+SYSTEMCONDIR="/data/media/0/.System"
+SPEN_CONFIG_DIR="$SYSTEMCONDIR/SPen"
+CONFIG="$SPEN_CONFIG_DIR/Keyboard.conf"
+LOGFILE="$SPEN_CONFIG_DIR/spen.log"
+IMEMODE="/preload/spen/ime_mode"
+CIMEMODE="/preload/spen/ime_mode_current"
 #*******************************Initial Value*************************************#
 touchenable=1
-inputmode="TOUCHSCREEN"
+imemode="TOUCHSCREEN"
+inputpevmode="TOUCHSCREEN"
 #*****************************Get Config Value************************************#
-if [ -e $CONFIG ]; then
-    while IFS=: read -r v1 v2
-    do
-        #************************** assign parameters ****************************#
-        SpenInputIME=$v1
-        TouchInputIME=$v2
-    done <"$CONFIG"    
-fi
+getconfig() {
+    if [ -e $CONFIG ]; then
+        while IFS=: read -r v1 v2 v3
+        do
+            #************************** assign parameters ****************************#
+            SpenInputIME=$v1
+            TouchInputIME=$v2
+            CT_Sec=$v3
+        done <"$CONFIG"    
+    fi
+}
 #************************ Disable TOUCHSCREEN_INPUT *****************************
 disabletouchinput() {
     echo 0 > /sys/devices/platform/s3c2440-i2c.0/i2c-0/0-004a/input/input2/enabled
@@ -91,119 +44,53 @@ enabletouchinput() {
 # ** these two codes are not signal for S-Pen in used.                           ***
 #************************ Get PEN event code ************************************
 speninbox() {
-    if [ "$inputmode" == "TOUCHSCREEN" ]; then
-        speninboxcode=$( getevent -qc 1  /dev/input/event10 )
+
+    END=$(date +%s)
+    DIFF=$(( $END - $START ))
+    if [ -e $IMEMODE ]; then
+        mv $IMEMODE $CIMEMODE
+        imemode=$(cat $CIMEMODE)
     else
-        speninboxcode=$(timeout 1 getevent -qc 1  /dev/input/event10 )
+        imemode=$(cat $CIMEMODE)
     fi
-    #--------- Not empty means S-Pen in used ------------#
-    if [ "$speninboxcode" != "" ]; then
-        if [ "$inputmode" == "TOUCHSCREEN" ]; then
+    if [ "$imemode" == "TOUCHSCREEN" ]; then
+        if [ $DIFF -gt $CT_Sec ]; then
+            if [ "$CTTIP" == "False" ]; then
+                /system/bin/ime set $TouchInputIME
+                CTTIP="True"
+                inputpevmode="$imemode"
+            fi
+        fi
+    else
+        if [ "$imemode" != "$inputpevmode" ]; then
             /system/bin/ime set $SpenInputIME
+            CTTIP="False"
+            inputpevmode="$imemode"
         fi
-        inputmode="S-PEN"
+        START=$(date +%s)
     fi
 
-    if [ "$speninboxcode" == "0005 0013 00000000" ]; then
-        inputmode="TOUCHSCREEN"
-    elif [ "$speninboxcode" == "" ]; then
-        inputmode="TOUCHSCREEN"
-    fi
-
-    if [ "$inputmode" == "TOUCHSCREEN" ]; then
-        /system/bin/ime set $TouchInputIME
-
-        spendown=0
-        spenup=0
-        pentouchdown=0
-        pentouchup=0
-        stylusbtpd=0
-        stylusbtpu=0
-    fi
 }
-#************************ Get PEN event code ************************************
-spenevent() {
-        speneventcode=$( timeout 2 getevent -lc 500 /dev/input/event10 | grep -e "EV_KEY" )
-}
-# **********************************************************************************
-pendetection() {
-
-        test="EV_KEY       BTN_DIGI             DOWN"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            spendown=1
-        else
-            spendown=0
-        fi
-        
-        test="EV_KEY       BTN_DIGI             UP"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            spenup=1
-        
-        else
-            spenup=0
-        fi
-        
-        test="EV_KEY       BTN_TOUCH            DOWN"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            pentouchdown=1
-        else
-            pentouchdown=0
-        fi
-        
-        test="EV_KEY       BTN_TOUCH            UP"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            pentouchup=1
-        else
-            pentouchup=0
-        fi
-        
-        test="EV_KEY       BTN_STYLUS           DOWN"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            stylusbtpd=1
-        else
-            stylusbtpd=0
-        fi
-        
-        test="EV_KEY       BTN_STYLUS           UP"
-        if echo "$speneventcode" | grep -q "$test"
-        then
-            stylusbtpu=1
-        else
-            stylusbtpu=0
-        fi
-}
-
 # ************************* Main Part ********************************
+echo "Spen-input-detection Start" >> $LOGFILE
 
+getconfig
+
+START=$(date +%s)
+CTTIP="False"
+# Forever Loop
 while :; do
     speninbox
-    
-    if [ "$inputmode" == "S-PEN" ]; then
+    if [ "$imemode" == "S-PEN" ]; then
         if [ "$touchenable" == "1" ]; then
             disabletouchinput
             touchenable=0
         fi
-    elif [ "$inputmode" == "TOUCHSCREEN" ]; then
+    elif [ "$imemode" == "TOUCHSCREEN" ]; then
         if [ "$touchenable" == "0" ]; then
             enabletouchinput
             touchenable=1
         fi
     fi
-    
-    if [ "$inputmode" == "S-PEN" ]; then
-        spenevent
-        pendetection
-        
-        screencapcode=$((spendown + pentouchdown + stylusbtpd + stylusbtpu))
-        if [  $screencapcode -ge 3   ]; then 
-            dt=$(date +"%Y-%m-%d_%H-%M-%S")
-            /system/bin/screencap -p "/data/media/0/Pictures/Screenshots/Screenshot_$dt.png"
-        fi
-    fi
-
+    sleep 1
 done

@@ -1,0 +1,100 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+
+if [ -e /system/xbin/su ]; then
+    alias mkdir="/system/xbin/su 0 mkdir"
+    alias chmod="/system/xbin/su 0 chmod"
+    alias echo="/system/xbin/su 0 echo"
+    alias grep="/system/xbin/su 0 grep"
+    alias cut="/system/xbin/su 0 cut"
+    alias rm="/system/xbin/su 0 rm"
+    alias suxb="/system/xbin/su 0"
+elif  [ -e /sbin/su ]; then
+    alias mkdir="/sbin/su -Mc mkdir"
+    alias chmod="/sbin/su -Mc chmod"
+    alias echo="/sbin/su -Mc echo"
+    alias grep="/sbin/su -Mc grep"
+    alias cut="/sbin/su -Mc cut"
+    alias rm="/sbin/su -Mc rm"
+    alias suxb="/sbin/su -Mc"
+fi
+# *******************************************************************************
+
+TEMP_STATE="/dev/spen/temp_state"
+KILLPID="/dev/spen/kill_pid"
+KILLLOCK="/dev/spen/.kill"
+
+mkdir -p ${TEMP_STATE%/*}
+
+# *******************************************************************************
+
+kill_spen_process() {
+if [ ! -e $KILLLOCK ]; then
+.  $KILLPID
+   echo "1" > $KILLLOCK
+   echo 1 > /sys/devices/platform/s3c2440-i2c.0/i2c-0/0-004a/input/input2/enabled
+fi
+}
+# *******************************************************************************
+getspace_num() {
+    st=12 
+    while [ $st -gt 6 ]
+    do
+        cut="-f$st"
+        
+        scp=$(grep -e "/system/bin/SpenFunction" $TEMP_STATE | cut -d " " $cut )
+
+        if [ $scp -gt 3000 ]; then
+            break
+        fi
+
+        st=$(( st - 1))
+    done
+}
+prepair_to_kill() {
+    suxb ps -f -u root | grep -e "/system/bin/SpenFunction" | grep -e "sh" > $TEMP_STATE
+    getspace_num
+    echo "suxb pkill -l 9 -P $scp" > $KILLPID
+    chmod +x $KILLPID
+}
+# *******************************************************************************
+spen_infunction=0
+prepair_to_kill
+while :; do
+    # Check for spen in use, if so start spen shell program
+    # stop when it is not in use
+    spen_in_box=$(cat /sys/devices/virtual/sec/sec_epen/epen_insert_state)
+    if [ $spen_in_box -ne 1 ]; then
+        if [ $spen_infunction -eq 0 ]; then
+            suxb spen&
+            sleep 1s
+            suxb spengetevent&
+            sleep 1s
+            suxb speninputdetection&
+            sleep 2s
+            suxb speneventcode&
+            sleep 2s
+            suxb spenscreencapture&
+            
+            rm $KILLLOCK
+            rm $TEMP_STATE
+            spen_infunction=1
+            sleep 5s
+        fi
+        sleep 5s
+    else
+       kill_spen_process
+       sleep 3s
+       spen_infunction=0
+    fi
+
+done

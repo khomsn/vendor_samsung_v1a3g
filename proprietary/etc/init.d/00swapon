@@ -1,0 +1,25 @@
+#!/system/bin/sh
+
+#This simple script will enable swap at boot using a swap file.
+#Make sure you change the value of SWAP_PATH below to point to the file or partition you need to use.
+#This script is intended to run from init.d directory at boot.
+#It must be executed with root privilledges.
+#If this script does not work, even if you have init.d support on your ROM, please try using an App that emulates init.d
+#Panos(Geekydoc), 2017
+
+SWAP_PATH_D=/data/local/swapfile
+
+# Make swapfile if not exist
+# Add more space for swapfile in /data area, let say for 1G = bs * count = 1024 * 1M
+if [ ! -e $SWAP_PATH_D ]; then
+    dd if=/dev/zero of=$SWAP_PATH_D bs=1024 count=1M
+    chmod 600 $SWAP_PATH_D
+    mkswap $SWAP_PATH_D
+fi
+
+if [ -e $SWAP_PATH_D ]; then
+    swapon $SWAP_PATH_D
+fi
+
+exit 0
+

@@ -21,7 +21,7 @@ PRODUCT_PACKAGES += \
     UniversalDoze \
 
 PRODUCT_PACKAGES += \
-    Viper4AndroidFx
+    Ds \
 
 $(call inherit-product, vendor/samsung/v1a3g/v1a3g-vendor-blobs.mk)
 

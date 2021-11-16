@@ -21,4 +21,10 @@ VENDOR_DIR := vendor/samsung/v1a3g
 
 # Parted Patitioning program
 PRODUCT_COPY_FILES += \
-    $(VENDOR_DIR)/root/sbin/parted:root/sbin/parted
+    $(VENDOR_DIR)/root/sbin/parted:root/sbin/parted \
+    $(VENDOR_DIR)/root/sbin/su:root/sbin/su \
+    
+#PRODUCT_COPY_FILES += \
+    $(VENDOR_DIR)/system/pre-install/APK/DsUI.zip:system/pre-install/APK/DsUI.zip \
+    $(VENDOR_DIR)/system/pre-install/APK/v4afx-2.7.2.1.zip:system/pre-install/APK/v4afx-2.7.2.1.zip \
+    

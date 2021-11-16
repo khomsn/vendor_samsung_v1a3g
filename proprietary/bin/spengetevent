@@ -1,0 +1,68 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+SYSTEMCONDIR="/data/media/0/.System"
+SPEN_CONFIG_DIR="$SYSTEMCONDIR/SPen"
+LOGFILE="$SPEN_CONFIG_DIR/spen.log"
+TEMP_EVENT="/preload/spen/temp_event"
+EVENTLOG="/preload/spen/event_log"
+SPENMODE="/preload/spen/spen_mode"
+CAPMODE="/preload/spen/cap_mode"
+IMEMODE="/preload/spen/ime_mode"
+#*******************************************************************************
+mkdir -p ${TEMP_EVENT%/*}
+#*******************************************************************************
+echo "Spen-input-getevent Start" >> $LOGFILE
+inputmode="S-PEN"
+echo "$inputmode" > $SPENMODE
+echo "$inputmode" > $CAPMODE
+echo "$inputmode" > $IMEMODE
+echo "$inputmode" >> $LOGFILE
+loop=0
+while :; do
+#  For Ever Loop 
+    
+    speninboxcode=$(timeout 1 getevent -qc 1  /dev/input/event10 )
+    #--------- Not empty means S-Pen in used ------------#
+    if [ "$speninboxcode" != "" ]; then
+        inputmode="S-PEN"
+    elif [ "$speninboxcode" == "" ]; then
+        inputmode="TOUCHSCREEN"
+        # Reset if e-pen is not response
+        reset=$(cat /sys/devices/virtual/sec/sec_epen/epen_checksum)
+        if [ "$reset" == "FAIL" ];then
+            echo 1 > /sys/devices/virtual/sec/sec_epen/epen_reset
+        fi
+        if [ -e $TEMP_EVENT ]; then
+            rm $TEMP_EVENT
+        fi
+    fi
+
+    echo "$inputmode" > $SPENMODE
+    echo "$inputmode" > $CAPMODE
+    echo "$inputmode" > $IMEMODE
+
+    if [ "$inputmode" == "S-PEN" ]; then
+        while [ $loop -lt 10 ]; do
+            timeout 2 getevent -lc 1000 /dev/input/event10 | grep -e "EV_KEY" >> $TEMP_EVENT
+            if grep -qe "EV_KEY" $TEMP_EVENT ; then
+                if [ ! -e $EVENTLOG ]; then
+                    cat $TEMP_EVENT | grep -ne "EV_KEY"  > $EVENTLOG
+                    rm $TEMP_EVENT
+                fi
+            else
+                break
+            fi
+            loop=$((loop + 1))
+        done
+        loop=0
+    fi
+done

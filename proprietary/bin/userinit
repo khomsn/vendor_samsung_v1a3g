@@ -7,3 +7,4 @@ then
    /system/bin/sh /data/local/userinit.sh;
    setprop lineage.userinit.active 1;
 fi;
+setprop lineage.sysinit.completed 1

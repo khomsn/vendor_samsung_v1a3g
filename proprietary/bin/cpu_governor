@@ -1,0 +1,137 @@
+#!/system/bin/sh
+count_start=0
+stopcount=0
+setdefault=0
+tempset=0
+
+SYSTEMCONDIR="/data/media/0/.System"
+CPUFREQ="$SYSTEMCONDIR/cpu_governor"
+# delay start for 5 minutes
+sleep 5m
+DEF_FREQ=$(cat $CPUFREQ)
+govset=""
+
+while :; do
+#  For Ever Loop 
+
+    CPU_TEMP=$(cat /sys/devices/platform/exynos5-tmu/curr_temp | cut -d "," -f1)
+    usleep 500000
+    if [ $CPU_TEMP -gt 780 ];then
+        if [ $tempset -ne 780 ]; then
+            setprop cpu.temp.read 780
+            tempset=780;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -gt 740 ];then
+        if [ $tempset -ne 740 ]; then
+            setprop cpu.temp.read 740
+            tempset=740;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -gt 700 ];then
+        if [ $tempset -ne 700 ]; then
+            setprop cpu.temp.read 700
+            tempset=700;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -gt 660 ];then
+        if [ $tempset -ne 660 ]; then
+            setprop cpu.temp.read 660
+            tempset=660;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -gt 620 ];then
+        if [ $tempset -ne 620 ]; then
+            setprop cpu.temp.read 620
+            tempset=620;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -gt 580 ];then
+        if [ $tempset -ne 580 ]; then
+            setprop cpu.temp.read 580
+            tempset=580;
+        fi
+        usleep 500000
+    elif [ $CPU_TEMP -ge 550 ];then
+        if [ $tempset -ne 550 ]; then
+            setprop cpu.temp.read 550
+            tempset=550;
+        fi
+        usleep 500000
+    else
+        if [ $tempset -lt 550 ]; then
+            setprop cpu.temp.read 500
+            tempset=500;
+        fi
+    fi
+    usleep 500000
+    CPU_USER_P=$(top -n 1| grep -e "%user" | grep -e "%cpu" | cut -d "%" -f2- | cut -d "%" -f1 | cut -d " " -f2-)
+
+    if [ $CPU_USER_P -gt 150 ];then
+        if [ "$govset" != "performance" ];then
+            setprop cpu.governor.set performance
+            govset="performance"
+        fi
+        usleep 500000
+    elif [ $CPU_USER_P -ge 20 ];then
+        if [ "$govset" != "$DEF_FREQ" ];then
+            setprop cpu.governor.set $DEF_FREQ
+            govset="$DEF_FREQ"
+        fi
+        usleep 500000
+    elif [ $CPU_USER_P -ge 10 ];then
+        if [ "$govset" != "interactive" ];then
+            setprop cpu.governor.set interactive
+            govset="interactive"
+        fi
+        usleep 500000
+    elif [ $CPU_USER_P -lt 5 ];then
+        if [ "$govset" != "conservative" ];then
+            setprop cpu.governor.set conservative
+            govset="conservative"
+        fi
+        usleep 500000
+    fi
+    usleep 500000
+
+    # LCD power off = 4, on = 0
+    LCD_OFF=$(cat /sys/class/lcd/platform-lcd.0/lcd_power)
+    usleep 500000
+    if [ $LCD_OFF -eq 4 ]; then
+        if [ $count_start -eq 0 ]; then
+            START_LCD=$(date +%s)
+        fi
+        sleep 2s
+        if [ $stopcount -eq 0 ];then
+            END_LCD=$(date +%s)
+            DIFF_LCD=$(( END_LCD - START_LCD ))
+        fi
+        sleep 2s
+        if [ $DIFF_LCD -gt 3600 ]; then
+            if [ $CPU_USER_P -lt 15 ];then
+                if [ "$govset" != "conservative" ];then
+                    setprop cpu.governor.set conservative
+                    govset="conservative"
+                fi
+            fi
+        fi
+        if [ $DIFF_LCD -gt 7200 ]; then
+            if [  $CPU_USER_P -lt 25 ];then
+                setprop cpu.governor.set powersave
+                stopcount=1
+                setdefault=0
+                govset="powersave"
+            fi
+        fi
+        sleep 1m
+    else
+        count_start=0
+        stopcount=0
+        if [ $setdefault -eq 0 ];then
+            setprop cpu.governor.set $DEF_FREQ
+            setdefault=1
+            govset="$DEF_FREQ"
+        fi
+    fi
+
+done

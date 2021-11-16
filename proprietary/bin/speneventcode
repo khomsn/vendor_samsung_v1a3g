@@ -1,0 +1,150 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+SYSTEMCONDIR="/data/media/0/.System"
+SPEN_CONFIG_DIR="$SYSTEMCONDIR/SPen"
+LOGFILE="$SPEN_CONFIG_DIR/spen.log"
+SPENCODE="/preload/spen/code"
+CAPTURECODE="/preload/spen/cap_code"
+AIRCODE="/preload/spen/air_code"
+TOUCHCODE="/preload/spen/touch_code"
+EVENTLOG="/preload/spen/event_log"
+# *******************************************************************************
+mkdir -p ${SPENCODE%/*}
+#*******************************************************************************
+decode_for_launch() {
+
+    code_num=$(wc -l < $SPENCODE)
+    if [ -z "$code_num" ]; then
+        code_num=0
+    fi
+    a=1
+    while [ $a -le $code_num ]
+        do
+        b=$((a+1))
+        c=$((b+1))
+        d=$((c+1))
+        f=$((d+1))
+        g=$((f+1))
+        h=$((g+1))
+
+        if grep "$a:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+            if grep  "$b:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                if grep  "$c:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                    if grep  "$d:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                        if grep  "$f:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                              aircommand=3
+                              break
+                        elif grep  "$f:EV_KEY       BTN_TOUCH            UP" $SPENCODE ; then
+                            touchcommand=2
+                            break
+                        else
+                            aircommand=2
+                            break
+                        fi
+                    fi
+                elif grep  "$c:EV_KEY       BTN_TOUCH            UP" $SPENCODE ; then
+                    touchcommand=1
+                    break
+                else
+                    aircommand=1
+                    break
+                fi
+            fi
+        elif grep  "$a:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+            if grep  "$b:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                if  grep  "$c:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                    if grep  "$d:EV_KEY       BTN_TOUCH            UP" $SPENCODE ; then
+                        touchcommand=2
+                        break
+                    elif grep  "$d:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                        aircommand=3
+                        break
+                    else
+                        aircommand=2
+                        break
+                    fi
+                fi
+            elif grep  "$b:EV_KEY       BTN_TOUCH            UP" $SPENCODE ; then
+                touchcommand=1
+                break
+            else
+                aircommand=1
+                break
+            fi
+        elif grep  "$a:EV_KEY       BTN_TOUCH            DOWN" $SPENCODE ; then
+            if grep  "$b:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                if grep  "$c:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                    if grep  "$d:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                        touchcommand=2
+                        break
+                    else
+                        touchcommand=1
+                        break
+                    fi
+                fi
+            fi
+        fi
+        
+        if grep "$a:EV_KEY       BTN_DIGI             DOWN" $SPENCODE ; then
+            if grep  "$b:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+                if grep  "$c:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                    if grep  "$d:EV_KEY       BTN_DIGI             UP" $SPENCODE ; then
+                        capcommand=1
+                        break
+                    fi
+                    capcommand=1
+                    break
+                fi
+            fi
+        elif grep  "$b:EV_KEY       BTN_STYLUS           DOWN" $SPENCODE ; then
+            if grep  "$c:EV_KEY       BTN_STYLUS           UP" $SPENCODE ; then
+                if grep  "$d:EV_KEY       BTN_DIGI             UP" $SPENCODE ; then
+                    capcommand=1
+                    break
+                fi
+            fi
+        fi
+    
+    a=$(( a+1 ))
+
+    done  
+}
+#***********************************************************************************
+echo "Spen Event Code Start" >> $LOGFILE
+v=0
+while :; do
+#  For Ever Loop 
+    aircommand=0
+    touchcommand=0
+    capcommand=0
+    if [ -e $EVENTLOG ]; then
+        if [ ! -e $SPENCODE ]; then
+            mv $EVENTLOG $SPENCODE
+            decode_for_launch
+            rm $SPENCODE
+        fi
+    fi
+    if [ $aircommand -gt 0 ]; then
+        echo "$aircommand" > $AIRCODE
+        sleep 1
+    elif [ $touchcommand -gt 0 ]; then
+        echo "$touchcommand" > $TOUCHCODE
+        sleep 1
+    elif [ $capcommand -eq 1 ]; then
+        echo $capcommand > $CAPTURECODE
+        sleep 1
+    fi
+    if [ ! -e $EVENTLOG ]; then
+        sleep 2
+    fi
+    usleep 250000
+done

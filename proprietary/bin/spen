@@ -1,0 +1,168 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+SYSTEMCONDIR="/data/media/0/.System"
+SPEN_CONFIG_DIR="$SYSTEMCONDIR/SPen"
+CONFIG="$SPEN_CONFIG_DIR/Keyboard.conf"
+CONFIG_APL="$SPEN_CONFIG_DIR/launch_app.conf"
+INFORM="$SPEN_CONFIG_DIR/S-PEN-Detection-ReadMe-First.txt"
+LOGFILE="$SPEN_CONFIG_DIR/spen.log"
+SPENMODE="/preload/spen/spen_mode"
+AIRCODE="/preload/spen/air_code"
+TOUCHCODE="/preload/spen/touch_code"
+
+mkdir -p ${SPENCODE%/*}
+# ************************ Check config  ******************************************
+if [ ! -e $CONFIG ]; then
+    if [ ! -d $SPEN_CONFIG_DIR ]; then
+        mkdir -p $SPEN_CONFIG_DIR
+        chmod 0771 $SPEN_CONFIG_DIR
+        chown root:sdcard_rw $SPEN_CONFIG_DIR
+        echo "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME:org.pocketworkstation.pckeyboard/.LatinIME:10" > $CONFIG
+    else
+        echo "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME:org.pocketworkstation.pckeyboard/.LatinIME:10" > $CONFIG
+    fi
+fi
+#*********************************************************************************
+if [ ! -e $CONFIG_APL ]; then
+        echo "(1) airlaunch [1] {com.symcoding.widget.stickynotes}" > $CONFIG_APL
+        echo "(2) touchlaunch [1] {com.steadfastinnovation.android.projectpapyrus}" >> $CONFIG_APL
+fi
+#*********************************************************************************
+if [ ! -e $INFORM ]; then
+    if [ ! -d $SPEN_CONFIG_DIR ]; then
+        mkdir -p $SPEN_CONFIG_DIR
+        chmod 0771 $SPEN_CONFIG_DIR
+        chown root:sdcard_rw $SPEN_CONFIG_DIR
+        echo "#************************************************************************************************#" > $INFORM
+        echo "# ************************ config file input ****************************************************#" >> $INFORM
+        echo "default config file location is $CONFIG" >> $INFORM
+        echo "format patern is as below copy line below and paste in $CONFIG\" ">> $INFORM
+        echo "\n" >> $INFORM
+        echo "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME:org.pocketworkstation.pckeyboard/.LatinIME:10" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "  First_is_for_Spen_input : Second_is_for_Touch_input : X Second for to change input from Spen Keyboard to Touch Keyboard" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#*************************************************************************************************#" >> $INFORM
+        echo "\n"  >> $INFORM
+        echo "  Take screen capture by touch the stylus tip to screen then press side button then remove s-pen, ">> $INFORM
+        echo "do this step with in 5 second. Screen Shot with be placed in /Pictures/Screenshots/">> $INFORM
+        echo "\n" >> $INFORM
+        echo " You can launch app from when spen is near the screen and when spen touch the screen">> $INFORM
+        echo " put config in \"launch_app.conf\" eg." >>$INFORM
+        echo "(1) airlaunch [1] {com.symcoding.widget.stickynotes}" >> $INFORM
+        echo "(2) touchlaunch [1] {com.steadfastinnovation.android.projectpapyrus}" >> $INFORM
+        echo " airlaunch means lunch app when spen on air near by screen" >> $INFORM
+        echo " touchlaunch means lunch app when spen touch screan" >> $INFORM
+        echo "(3) = line number, [Number] = sum of spen side button click " >> $INFORM
+        echo " airlaunch supports upto 3 clicks">> $INFORM
+        echo " touchlaunch supports upto 2 clicks">> $INFORM
+        echo "{package name to launch}">> $INFORM
+
+    else
+       
+        echo "#************************************************************************************************#" > $INFORM
+        echo "# ************************ config file input ****************************************************#" >> $INFORM
+        echo "default config file location is $CONFIG" >> $INFORM
+        echo "format patern is as below copy line below and paste in $CONFIG">> $INFORM
+        echo "\n" >> $INFORM
+        echo "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME:org.pocketworkstation.pckeyboard/.LatinIME:10" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "  First_is_for_Spen_input : Second_is_for_Touch_input : X Second for to change input from Spen Keyboard to Touch Keyboard" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#******************  Change to suite your need ***************************************************#" >> $INFORM
+        echo "\n" >> $INFORM
+        echo "#*************************************************************************************************#" >> $INFORM
+        echo "\n"  >> $INFORM
+        echo "  Take screen capture by touch the stylus tip to screen then press side button then remove s-pen, ">> $INFORM
+        echo "do this step with in 5 second. Screen Shot with be placed in /Pictures/Screenshots/">> $INFORM
+        echo "\n" >> $INFORM
+        echo " You can launch app from when spen is near the screen and when spen touch the screen">> $INFORM
+        echo " put config in \"launch_app.conf\" eg." >>$INFORM
+        echo "(1) airlaunch [1] {com.symcoding.widget.stickynotes}" >> $INFORM
+        echo "(2) touchlaunch [1] {com.steadfastinnovation.android.projectpapyrus}" >> $INFORM
+        echo " airlaunch means lunch app when spen on air near by screen" >> $INFORM
+        echo " touchlaunch means lunch app when spen touch screan" >> $INFORM
+        echo "(3) = line number, [Number] = sum of spen side button click " >> $INFORM
+        echo " airlaunch supports upto 3 clicks">> $INFORM
+        echo " touchlaunch supports upto 2 clicks">> $INFORM
+        echo "{package name to launch}">> $INFORM
+    fi
+fi
+#*********************************************************************************
+if [ ! -d /data/media/0/Pictures/Screenshots ]; then
+        mkdir -p /data/media/0/Pictures/Screenshots
+        chmod 0771 /data/media/0/Pictures/Screenshots
+        chown root:sdcard_rw /data/media/0/Pictures/Screenshots
+fi
+
+#***************************************************************************************#
+lunchapp() {
+    command_to_launch=""
+    appcfg=$(wc -l < $CONFIG_APL)
+    z=1
+    while [ $z -le $appcfg ]
+        do 
+        pattern="($z)"
+        if grep -e $pattern $CONFIG_APL | grep -e "airlaunch" ; then
+            cm_no=$(grep -e $pattern $CONFIG_APL | grep -e "airlaunch" | cut -d "]" -f1 | cut -d "[" -f2- )
+            if [ $cm_no -eq $aircommand ]; then
+                command_to_launch=$(grep -e $pattern $CONFIG_APL | grep -e "airlaunch" | cut -d "{" -f2- | cut -d "}" -f1 )
+            fi
+        elif grep -e $pattern $CONFIG_APL | grep -e "touchlaunch" ; then
+            cm_no=$(grep -e $pattern $CONFIG_APL | grep -e "touchlaunch" | cut -d "]" -f1 | cut -d "[" -f2- )
+            if [ $cm_no -eq $touchcommand ]; then
+                command_to_launch=$(grep -e $pattern $CONFIG_APL | grep -e "touchlaunch" | cut -d "{" -f2- | cut -d "}" -f1 )
+            fi
+        fi
+        z=$((z+1))
+    done
+    if [ ! -z "$command_to_launch" ]; then
+        monkey -p $command_to_launch -c android.intent.category.LAUNCHER 1
+        echo "Launch: $command_to_launch" >>$LOGFILE
+    fi
+}
+# ************************* Main Part ********************************
+echo "Start" > $LOGFILE
+
+while :; do
+
+ if [ -e $AIRCODE ]; then
+    aircommand=$(cat $AIRCODE)
+    rm $AIRCODE
+    lunchapp
+    echo "run aircommand = $aircommand" >>$LOGFILE
+    sleep 1
+ elif [ -e $TOUCHCODE ];then
+    touchcommand=$(cat $TOUCHCODE)
+    rm $TOUCHCODE
+    lunchapp
+    echo "run touchcommand = $touchcommand" >>$LOGFILE
+    sleep 1
+ fi
+ 
+ if [ -e $SPENMODE ];then
+    spenmode=$(cat $SPENMODE)
+    rm $SPENMODE
+    if [ "$spenmode" == "TOUCHSCREEN" ]; then
+        sleep 2
+    else
+        usleep 200000
+    fi
+ else
+    usleep 500000
+ fi
+
+done

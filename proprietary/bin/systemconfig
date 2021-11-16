@@ -1,0 +1,208 @@
+#!/system/bin/sh
+
+SYSTEMCONDIR="/data/media/0/.System"
+
+SINFORM="$SYSTEMCONDIR/ReadMe-First.txt"
+
+CPUFREQ="$SYSTEMCONDIR/cpu_governor"
+AVAILABLE_GOVERNORS="$SYSTEMCONDIR/available_governors.txt"
+
+SWAPPINESSVALUE="$SYSTEMCONDIR/vm.swappiness"
+DPISET="$SYSTEMCONDIR/lcd_density_dpi"
+PDPISET="/preload/System/lcd_density_dpi"
+AUDIOTUNE="$SYSTEMCONDIR/AUDIO-TUNE.info"
+AUDIOPROP="$SYSTEMCONDIR/audio.prop"
+TEMP="/dev/prop/temp"
+SELINUX="$SYSTEMCONDIR/SELinux"
+TEMPSELINUX="/dev/SELinux/temp"
+
+NEED_REBOOT=0
+
+if [ -e /system/xbin/su ]; then
+    alias mount="/system/xbin/su 0 mount -o rw,noatime"
+    alias setenforce="/system/xbin/su 0 setenforce"
+    alias mkdir="/system/xbin/su 0 mkdir"
+    alias chmod="/system/xbin/su 0 chmod"
+    alias chown="/system/xbin/su 0 chown"
+    alias echo="/system/xbin/su 0 echo"
+    alias sysctl="/system/xbin/su 0 sysctl"
+    alias sed="/system/xbin/su 0 sed"
+    alias grep="/system/xbin/su 0 grep"
+    alias reboot="/system/xbin/su 0 reboot"
+    alias cat="/system/xbin/su 0 cat"
+elif  [ -e /sbin/su ]; then
+    alias mount="/sbin/su -Mc mount -o rw,noatime"
+    alias setenforce="/sbin/su -Mc setenforce"
+    alias mkdir="/sbin/su -Mc mkdir"
+    alias chmod="/sbin/su -Mc chmod"
+    alias chown="/sbin/su -Mc chown"
+    alias echo="/sbin/su -Mc echo"
+    alias sysctl="/sbin/su -Mc sysctl"
+    alias sed="/sbin/su -Mc sed"
+    alias grep="/sbin/su -Mc grep"
+    alias reboot="/sbin/su -Mc reboot"
+    alias cat="/sbin/su -Mc cat"
+fi
+#****************Inform********************************************#
+if [ ! -d $SYSTEMCONDIR ]; then
+    mkdir -p $SYSTEMCONDIR
+    chmod 0771 $SYSTEMCONDIR
+    chown root:sdcard_rw $SYSTEMCONDIR
+fi
+
+echo "#************************************************************************************************#" > $SINFORM
+echo "# ************************ System config file ***************************************************#" >> $SINFORM
+echo "default config file location is in $SYSTEMCONDIR directory" >> $SINFORM
+echo "AVAILABLE_GOVERNORS for cpu governor is displayed in available_governors.txt, change cpu governor " >> $SINFORM
+echo "in file 'cpu_governor' with one of governor in available_governors.txt" >> $SINFORM        
+echo "\n" >> $SINFORM
+echo "#This file will be applied to set swappiness on boot. Swappiness value range from 0 to 100" >> $SINFORM
+echo "#less value is less swap -> more responsive and more memory useage." >> $SINFORM
+echo "\n" >> $SINFORM
+echo "      DON'T FORGET TO ENTER FOR NEWLINE (!!! ONLY 1 NEWLINE !!!) IN EACH FILE AT THE END.         " >> $SINFORM
+echo "\n" >> $SINFORM
+echo "#******************  Change to suite your need ***************************************************#" >> $SINFORM
+echo "\n" >> $SINFORM
+echo " Set SELinux in $SELINUX with 1 or 0 for enforcing and permissive respectively\n" >> $SINFORM
+echo "#*************************************************************************************************#" >> $SINFORM
+
+#***************** update AVAILABLE_GOVERNORS info **************************
+gove=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors)
+echo "$gove" > $AVAILABLE_GOVERNORS
+
+# ************************ config  ******************************************
+if [ ! -e $CPUFREQ ]; then
+    echo "interactive" > $CPUFREQ
+fi
+
+if [ ! -e $SWAPPINESSVALUE ]; then
+    echo "20" > $SWAPPINESSVALUE
+fi
+
+if [ ! -e $DPISET ]; then
+    dpi=$(grep ro.sf.lcd_density /system/build.prop)
+    dpi=${dpi:18}
+    echo $dpi > $DPISET
+fi
+
+if [ ! -e $PDPISET ]; then
+    dpi=$(grep ro.sf.lcd_density /system/build.prop)
+    dpi=${dpi:18}
+    echo $dpi > $PDPISET
+fi
+
+if [ ! -e $AUDIOTUNE ]; then
+    echo "# You can set audio_hal.period_size to only these values  #" > $AUDIOTUNE
+    echo "#     audio_hal.pback.str_threshold can set in this range #" >> $AUDIOTUNE
+    echo "#     [audio_hal.period_size + 1 to 2304]                 #" >> $AUDIOTUNE
+    echo "# if you want to set this value , Please set in file name #" >> $AUDIOTUNE
+    echo "# " >> $AUDIOTUNE
+    echo "#    $AUDIOPROP " >> $AUDIOTUNE
+    echo "#  with any of these lines" >> $AUDIOTUNE
+    echo "" >> $AUDIOTUNE
+    echo "setsysprop audio.offload.disable=0" >> $AUDIOTUNE
+    echo "setsysprop ro.config.vc_call_vol_steps=15" >> $AUDIOTUNE
+    echo "setsysprop ro.config.media_vol_steps=25" >> $AUDIOTUNE
+    echo "setsysprop ro.config.ring_vol_steps=15" >> $AUDIOTUNE
+    echo "setsysprop ro.config.alarm_vol_steps=15" >> $AUDIOTUNE
+    echo "setsysprop ro.config.notify_vol_steps=15" >> $AUDIOTUNE
+    echo "setsysprop ro.config.system_vol_steps=25" >> $AUDIOTUNE
+    echo "setsysprop audio_hal.disable_two_mic=true" >> $AUDIOTUNE
+    echo "setsysprop audio_hal.force_voice_config=wide" >> $AUDIOTUNE
+    echo "setsysprop audio_hal.period_size=240" >> $AUDIOTUNE
+    echo "setsysprop audio_hal.pb.start_threshold=241" >> $AUDIOTUNE
+    echo "setsysprop audio_hal.pb.stop_threshold=1440" >> $AUDIOTUNE
+fi
+
+if [ ! -e $SELINUX ]; then
+    echo 0 > $SELINUX
+fi
+#***************************** Apply Config **************************************#
+
+#***************************** CPU Freq GOVERNOR  ********************************#
+if [ -e $CPUFREQ ]; then
+    while IFS=: read -r v1
+    do
+        #************************** assign parameters ****************************#
+        GOVERNOR=$v1
+    done <"$CPUFREQ"   
+    echo $GOVERNOR > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+fi
+#*********************Swappiness*************************************************#
+if [ -e $SWAPPINESSVALUE ]; then
+    while IFS=: read -r v1
+    do
+        #************************** assign parameters ****************************#
+        SWAPPINESS=$v1
+    done <"$SWAPPINESSVALUE"  
+    sysctl -w vm.swappiness=$SWAPPINESS
+fi
+#****************************** DPI **********************************************#
+if [ -e $DPISET ]; then
+    while IFS=: read -r v1
+    do
+        #************************** assign parameters ****************************#
+        nDPI=$v1
+        if [ -e $PDPISET ]; then
+            oDPI=$( cat $PDPISET)
+        fi
+    done <"$DPISET"
+    if [ $nDPI -ne $oDPI ]; then
+        mount -o remount,rw /
+        sedexpcond="s/ro.sf.lcd_density=$oDPI/ro.sf.lcd_density=$nDPI/g"
+        sed -i $sedexpcond /system/build.prop
+        echo $nDPI > $PDPISET
+        NEED_REBOOT=1
+    fi
+fi
+#********************************Audio latecy ****************************#
+syspropset () {
+    if [ -n $1 ]; then
+        PROPST_1="$1"
+        PROPNAME="${PROPST_1%%=*}"
+        if [ $PROPNAME == "audio_hal.pb.start_threshold" ]; then
+            period_size=$(grep audio_hal.period_size /system/build.prop)
+            period_size=${period_size:22}
+            start_threshold=${PROPST_1:29}
+            if [ $start_threshold -le $period_size ]; then
+                start_threshold=$(period_size + 1)
+                PROPST_1="audio_hal.pb.start_threshold=$start_threshold"
+            fi
+        fi
+        PROPST_0="$(grep -E $PROPNAME /system/build.prop)"
+        sedexpcond="s/$PROPST_0/$PROPST_1/g"
+        sed -i $sedexpcond /system/build.prop
+    fi
+}
+
+if [ -e $AUDIOPROP ]; then
+    mount -o remount,rw /
+    #make temporary file
+    mkdir -p ${TEMP%/*}
+    
+    setsysprop() { syspropset "$1" $2; }
+    
+    grep -E '^setsysprop ' $AUDIOPROP >$TEMP
+    . $TEMP
+    rm -r $TEMP
+    rm $AUDIOPROP
+    NEED_REBOOT=1
+fi
+#*******************************************************#
+if [ -e $SELINUX ]; then
+    sevalue=$(cat $SELINUX)
+     #make temporary file
+    mkdir -p ${TEMPSELINUX%/*}
+   echo "/system/xbin/su 0 setenforce $sevalue" > $TEMPSELINUX
+   chmod +x $TEMPSELINUX
+fi
+#*******************************************************#
+if [ $NEED_REBOOT -eq 1 ]; then
+    reboot
+fi
+if [ -e /system/xbin/su ]; then
+    /system/xbin/su 0 /system/bin/userinit
+elif  [ -e /sbin/su ]; then
+    /sbin/su -Mc /system/bin/userinit
+fi
+#********************END********************************#

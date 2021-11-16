@@ -1,0 +1,44 @@
+#!/system/bin/sh
+
+# ************************** SPenInDetection ***********************************
+#
+# This shell script for controlling the S Pen input action
+# in galaxy note with S Pen device.  When the screen detected S Pen is near by
+# the screen TOUCHSCREEN_INPUT will be disabled. When S Pen is far away then
+# TOUCHSCREEN_INPUT will be enabled again.
+# 
+# Scripting by Khomsn@gmail.com
+# *******************************************************************************
+SYSTEMCONDIR="/data/media/0/.System"
+SPEN_CONFIG_DIR="$SYSTEMCONDIR/SPen"
+LOGFILE="$SPEN_CONFIG_DIR/spen.log"
+CAPTURECODE="/preload/spen/cap_code"
+CAPMODE="/preload/spen/cap_mode"
+# ************************* Main Part ********************************
+echo "Screen capture Start" >> $LOGFILE
+
+while :; do
+    #do capture when ever SPEN detected and sent command to capture
+    if [ ! -e $CAPTURECODE ]; then
+        usleep 500000
+    fi
+    if [ -e $CAPTURECODE ]; then
+        dt=$(date +"%Y-%m-%d_%H-%M-%S")
+        screencap -p "/data/media/0/Pictures/Screenshots/Screenshot_$dt.png"
+        rm $CAPTURECODE
+        echo "Capture Done:Screenshot_$dt.png" >>$LOGFILE
+    fi
+    if [ ! -e $CAPMODE ];then
+        sleep 1
+    fi
+    if [ -e $CAPMODE ];then
+        mode=$(cat $CAPMODE)
+        if [ "$mode" == "TOUCHSCREEN" ]; then
+            rm $CAPMODE
+            sleep 2
+        else
+            rm $CAPMODE
+            usleep 200000
+        fi
+    fi
+done

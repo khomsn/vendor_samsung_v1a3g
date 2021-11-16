@@ -1,0 +1,185 @@
+#!/system/bin/sh
+# Fbind init starter
+
+TEMPF="/dev/fbind/tempf"
+INTSDCARD="/data/media/0"
+SYSTEMCONDIR="$INTSDCARD/.System"
+CONFIGDIR="$SYSTEMCONDIR/FBind"
+LOGFILE="$CONFIGDIR/log.txt"
+CONFIGFILE="$CONFIGDIR/config.txt"
+INFORMFILE="$CONFIGDIR/INFO.txt"
+
+# File system binding core
+
+if [ -e /system/xbin/su ]; then
+    alias mount="/system/xbin/su 0 mount -o rw,noatime"
+    alias setenforce="/system/xbin/su 0 setenforce"
+    alias mkdir="/system/xbin/su 0 mkdir"
+    alias chmod="/system/xbin/su 0 chmod"
+    alias chown="/system/xbin/su 0 chown"
+    alias echo="/system/xbin/su 0 echo"
+    echo "alias mount=\"/system/xbin/su 0 mount -o rw,noatime\"" > $LOGFILE
+    echo "\n" >>$LOGFILE
+    echo $(getenforce) >>$LOGFILE
+elif  [ -e /sbin/su ]; then
+    alias mount="/sbin/su -Mc mount -o rw,noatime"
+    alias setenforce="/sbin/su -Mc setenforce"
+    alias mkdir="/sbin/su -Mc mkdir"
+    alias chmod="/sbin/su -Mc chmod"
+    alias chown="/sbin/su -Mc chown"
+    alias echo="/sbin/su -Mc echo"
+    echo "alias mount=\"/sbin/su -Mc mount -o rw,noatime\"" > $LOGFILE
+    echo "\n" >> $LOGFILE
+    echo $(getenforce) >> $LOGFILE
+fi
+
+# FBind begin
+if [ ! -d $CONFIGDIR ]; then
+    mkdir -p $CONFIGDIR
+    chmod 0761 $CONFIGDIR
+    chown root:sdcard_rw $CONFIGDIR
+fi
+
+if [ ! -e $CONFIGFILE ]; then
+    echo "#Bind mount config from Internal DIR (mount point) to External/other DIR (destination / actual storage place)" > $CONFIGFILE
+fi
+if [ ! -e $INFORMFILE ]; then
+    echo "#Bind mount config from Internal DIR (mount point) to External/other DIR (destination / actual storage place)" > $INFORMFILE
+    echo "#configure format as below" >> $INFORMFILE
+    echo "" >> $INFORMFILE
+    echo "from_to INT_SDCARD_DIR EXT_SDCARD_DIR" >> $INFORMFILE
+    echo "#from_to will bind 'INT_SDCARD_DIR' to '.fbind/EXT_SDCARD_DIR' , it is hidden in External SDCard." >> $INFORMFILE
+    echo "" >> $INFORMFILE
+    echo "ext_to_int INT_SDCARD_DIR_PATH EXT_SDCARD_DIR_PATH" >> $INFORMFILE
+    echo "#ext_to_int will bind 'INT_SDCARD_DIR' to 'EXT_SDCARD_DIR' , it is visible path on External SDCard." >> $INFORMFILE
+    echo "" >> $INFORMFILE
+    echo "target DIR_NAME" >> $INFORMFILE
+    echo "#target will bind 'INT_SDCARD/DIR_NAME' to 'EXT_SDCARD/DIR_NAME'. This folder is visible on External SDCard" >> $INFORMFILE
+    echo "" >> $INFORMFILE
+fi
+
+wait_until_true() {
+    echo "Check if emulated file system is ready" >> $LOGFILE
+    checkpoint=""
+    while :; do
+        checkpoint="$(grep /mnt/runtime/full/emulated /proc/mounts)"
+        if [ -n "$checkpoint" ]; then
+            echo "/mnt/runtime/full/emulated is ready" >> $LOGFILE
+            break;
+        fi
+    done
+
+  local count=0
+    
+  until [ $count -gt 1800 ]; do
+    count=$((count + 1))
+    if [ $count -lt 10 ]; then
+        echo "Wait for vold sdcard mount on /mnt/media_rw/ + [$count]" >> $LOGFILE
+    fi
+    checkpoint=""
+    checkpoint="$(grep /dev/block/vold/public:179,33 /proc/mounts)"
+    if [ -n "$checkpoint" ]; then
+        echo "Wait for vold sdcard mount on /mnt/media_rw/ + [$count]" >> $LOGFILE
+        echo "External SD Card is mounted on /mnt/media_rw/" >> $LOGFILE
+      $@ && break
+    fi
+  done
+  
+  echo "File System Bind Mount is READY!!!" >> $LOGFILE
+
+}
+
+whereis_SdCard() {
+  local dir="" size=0
+  if grep -iq '/storage/emulated sdcardfs' /proc/mounts; then
+    PREFIX=/mnt/runtime/default
+    INTSDCARD=$PREFIX/emulated/0
+    if grep -q /mnt/media_rw /proc/mounts; then
+        for dir in /mnt/media_rw/* ; do
+        if [ -e "$dir" ]; then
+            newSize=$(df $dir | tail -n1 | awk '{print $2}')
+            if [ $newSize -gt $size ]; then
+            EXTSDCARD=$dir
+            echo "$dir" >> $LOGFILE
+            EXTSDCARD=$PREFIX/${EXTSDCARD:14}
+            fi
+        fi
+        done
+    fi
+  fi
+}
+
+backup_config() {
+  [ -e $CONFIGFILE ] || cp -af /data/media/0/.fbind_config_backup.txt $CONFIGFILE 2>/dev/null || touch $CONFIGFILE
+  # wait until data is decrypted
+  until [ -e /data/media/0/?ndroid ]; do sleep 2; done
+  [ $CONFIGFILE -nt /data/media/0/.fbind_config_backup.txt ] && cp -af $CONFIGFILE /data/media/0/.fbind_config_backup.txt
+  echo "backup_config done" >> $LOGFILE
+  #make temporary file
+  mkdir -p ${TEMPF%/*}
+}
+
+bind_mount() {
+    
+    if [ ! -d $1 ]; then
+        mkdir -p $1
+        echo "make dir $1" >> $LOGFILE
+    fi
+
+    if [ ! -d $2 ]; then
+        mkdir -p $2
+        echo "make dir $2" >> $LOGFILE
+    fi
+
+    if ! is_mounted "$2"; then
+
+        mount -o rbind $1 $2
+        echo "mount -o rbind $1 $2"  >> $LOGFILE
+        INT_DIR=${2:32}
+        
+        mount -o remount,gid=9997,mask=6 /mnt/runtime/full/emulated/0/$INT_DIR
+        mount -o remount,gid=9997,mask=6 /mnt/runtime/write/emulated/0/$INT_DIR
+        mount -o remount,gid=9997,mask=6 /mnt/runtime/read/emulated/0/$INT_DIR
+        echo "remount with gid=9997,mask=6 on full/write/read of emulated/0/$INT_DIR" >>  $LOGFILE
+    fi
+
+}
+
+bind_mount_wrapper() {
+  echo "bind_mount_wrapper" >>  $LOGFILE
+  # $EXTSDCARD/<path> <--> $INTSDCARD/<same path>
+  target() { bind_mount "$EXTSDCARD/$1" "$INTSDCARD/$1" $2; }
+
+  # $EXTSDCARD/<path> <--> $INTSDCARD/<path>
+  from_to() { bind_mount "$EXTSDCARD/.fbind/$2" "$INTSDCARD/$1" $3; }
+  
+  # $EXTSDCARD/<path> <--> $INTSDCARD/<path>
+  ext_to_int() { bind_mount "$EXT_SDCARD/$2" "$INTSDCARD/$1" $3; }
+
+  if [ -n "$1" ]; then
+    grep -E '^from_to |^target |^ext_to_int ' $CONFIGFILE | grep -E "$1" >$TEMPF
+  else
+    grep -E '^from_to |^target |^ext_to_int ' $CONFIGFILE >$TEMPF
+  fi
+  . $TEMPF
+  rm -r $TEMPF
+}
+
+setenforce 0
+echo $(getenforce) >>$LOGFILE
+wait_until_true
+whereis_SdCard
+if [ -z $EXTSDCARD ]; then
+    echo "/*************************************/"  >>  $LOGFILE
+    echo "This tablet has no SDCard!!!!!!" >>  $LOGFILE
+    echo "Please insert usable SD Card and reboot!" >>  $LOGFILE
+    echo "/*************************************/"  >>  $LOGFILE
+    exit 0;
+fi
+backup_config
+
+grep -Eq '^from_to |^target |^ext_to_int ' $CONFIGFILE && bind_mount_wrapper
+
+setprop lineage.fsmbind.completed 1
+
+exit 0;
